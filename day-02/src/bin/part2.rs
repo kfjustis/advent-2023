@@ -23,6 +23,10 @@ fn main() {
     let mut line_number = 1;
 
     let mut id_sum: u32 = 0;
+    let mut powers_sum: u32 = 0;
+    let mut max_red: u32 = 0;
+    let mut max_green: u32 = 0;
+    let mut max_blue: u32 = 0;
 
     let reader = BufReader::new(file);
     for itr in reader.lines() {
@@ -32,6 +36,7 @@ fn main() {
         let data = line.split("; ");
         let mut game_id = 0;
         let mut game_possible: bool = true;
+        let mut game_instances: Vec<GameInstance> = Vec::new();
         for d in data {
             let game = d.split(": ");
             for g in game {
@@ -41,11 +46,12 @@ fn main() {
                 }
                 else {
                     let instance = process_game(game_id, g);
-                    println!("\tinstance: {:?}", instance);
+                    //println!("\tinstance: {:?}", instance);
                     if !is_instance_valid(&instance) {
-                        println!("\t\t...badGame!");
+                        //println!("\t\t...badGame!");
                         game_possible = false;
                     }
+                    game_instances.push(instance);
                 }
             }
         }
@@ -53,15 +59,35 @@ fn main() {
             id_sum += game_id;
         }
 
+        //println!("--game instance line: {} --", line_number);
+        //println!("{:?}", game_instances);
+        for gi in game_instances {
+            if gi.red > max_red {
+                max_red = gi.red;
+            }
+            if gi.green > max_green {
+                max_green = gi.green;
+            }
+            if gi.blue > max_blue {
+                max_blue = gi.blue;
+            }
+        }
+        //println!("...max rgb: {}, {}, {}", max_red , max_green , max_blue);
+        powers_sum += max_red * max_green * max_blue;
+        //println!("\t...power sum: {}", max_red * max_green * max_blue);
+        max_red = 0;
+        max_green = 0;
+        max_blue = 0;
+
         // Next itr.
         line_number += 1;
     }
 
-    println!("output: {}", id_sum);
+    println!("output: {}, final power sum: {}", id_sum, powers_sum);
 }
 
 fn process_game(id: u32, game: &str) -> GameInstance {
-    println!("processing game: {}", game);
+    //println!("processing game: {}", game);
 
     // Final container struct for the parsed game results.
     let mut result = GameInstance {id: id, red: 0, green: 0, blue: 0};
